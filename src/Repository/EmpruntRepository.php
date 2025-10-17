@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Emprunt;
+use App\Entity\Livre;
+use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,47 @@ class EmpruntRepository extends ServiceEntityRepository
         parent::__construct($registry, Emprunt::class);
     }
 
-//    /**
-//     * @return Emprunt[] Returns an array of Emprunt objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function hasActiveEmprunt(Livre $livre): bool
+    {
+        $result = $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.livre = :livre')
+            ->andWhere('e.dateRetour IS NULL')
+            ->setParameter('livre', $livre)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-//    public function findOneBySomeField($value): ?Emprunt
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        return $result > 0;
+    }
+    public function countActiveEmpruntsByUtilisateur(Utilisateur $utilisateur): int
+    {
+        return (int) $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.utilisateur = :utilisateur')
+            ->andWhere('e.dateRetour IS NULL')
+            ->setParameter('utilisateur', $utilisateur)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findActiveEmpruntsByUtilisateur(Utilisateur $utilisateur): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.utilisateur = :utilisateur')
+            ->andWhere('e.dateRetour IS NULL')
+            ->setParameter('utilisateur', $utilisateur)
+            ->orderBy('e.dateEmprunt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findActiveEmpruntByLivre(Livre $livre): ?Emprunt
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.livre = :livre')
+            ->andWhere('e.dateRetour IS NULL')
+            ->setParameter('livre', $livre)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

@@ -88,7 +88,7 @@ final class LivreController extends AbstractController
             $livres = $em->getRepository(Livre::class)->findAll();
             $data = [];
             foreach ($livres as $livre) {
-                $data = [
+                $data[] = [
                     'id' => $livre->getId(),
                     'titre' => $livre->getTitre(),
                     'datePublication' => $livre->getDatePublication()->format('Y-m-d'),
@@ -142,11 +142,11 @@ final class LivreController extends AbstractController
             }
 
             if (isset($data['disponible'])) {
-                $livre->setDisponible((bool)$data['disponible']);
+                $livre->setDisponible((bool) $data['disponible']);
             }
 
             if (isset($data['auteur_id'])) {
-                $auteur = $auteurRepo->find((int)$data['auteur_id']);
+                $auteur = $auteurRepo->find((int) $data['auteur_id']);
                 if (!$auteur) {
                     return $this->json(['error' => 'Auteur introuvable'], Response::HTTP_NOT_FOUND);
                 }
@@ -154,7 +154,7 @@ final class LivreController extends AbstractController
             }
 
             if (isset($data['categorie_id'])) {
-                $categorie = $categorieRepo->find((int)$data['categorie_id']);
+                $categorie = $categorieRepo->find((int) $data['categorie_id']);
                 if (!$categorie) {
                     return $this->json(['error' => 'Catégorie introuvable'], Response::HTTP_NOT_FOUND);
                 }
@@ -183,7 +183,7 @@ final class LivreController extends AbstractController
         }
     }
 
-        #[Route('/delete/{id}', name: 'livre_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[Route('/delete/{id}', name: 'livre_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(
         int $id,
         EntityManagerInterface $em,
@@ -195,20 +195,6 @@ final class LivreController extends AbstractController
 
             if (!$livre) {
                 return $this->json(['error' => 'Livre introuvable'], Response::HTTP_NOT_FOUND);
-            }
-
-            $hasActiveLoans = false;
-            foreach ($livre->getEmprunts() as $emprunt) {
-                if ($emprunt->getDateRetour() === null) {
-                    $hasActiveLoans = true;
-                    break;
-                }
-            }
-
-            if ($hasActiveLoans) {
-                return $this->json([
-                    'error' => 'Impossible de supprimer un livre actuellement emprunté'
-                ], Response::HTTP_CONFLICT);
             }
 
             $em->remove($livre);

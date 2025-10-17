@@ -24,7 +24,7 @@ class Emprunt
     #[ORM\JoinColumn(nullable: false)]
     private ?Livre $livre = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTime $dateRetour = null;
 
     public function getId(): ?int
