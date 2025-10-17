@@ -24,6 +24,9 @@ class Emprunt
     #[ORM\JoinColumn(nullable: false)]
     private ?Livre $livre = null;
 
+    #[ORM\Column]
+    private ?\DateTime $dateRetour = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,18 @@ class Emprunt
     public function setLivre(?Livre $livre): static
     {
         $this->livre = $livre;
+
+        return $this;
+    }
+
+    public function getDateRetour(): ?\DateTime
+    {
+        return $this->dateRetour;
+    }
+
+    public function setDateRetour(\DateTime $dateRetour): static
+    {
+        $this->dateRetour = $dateRetour;
 
         return $this;
     }
